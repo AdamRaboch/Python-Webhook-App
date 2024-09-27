@@ -1,0 +1,86 @@
+# tasks/install_dependencies.yml
+- name: Ensure Git is installed
+  ansible.builtin.yum:
+    name: git
+    state: present
+
+- name: Ensure Python3 is installed
+  ansible.builtin.yum:
+    name: python3
+    state: present
+
+- name: Ensure pip is installed
+  ansible.builtin.yum:
+    name: python3-pip
+    state: present
+
+- name: Ensure virtualenv is installed
+  ansible.builtin.pip:
+    name: virtualenv
+    state: present
+
+# Clone the Python Webhook App from GitHub
+- name: Clone the Python Webhook App from GitHub
+  ansible.builtin.git:
+    repo: 'https://github.com/AdamRaboch/Python-Webhook-App.git'
+    dest: /opt/webhook_app
+    version: main
+  become: true
+
+# Wait for the repository to be cloned
+- name: Wait for requirements.txt to exist
+  ansible.builtin.wait_for:
+    path: /opt/webhook_app/Python-Webhook-App/requirements.txt
+    timeout: 30
+  become: true
+  
+ # Debug: List files in /opt/webhook_app/Python-Webhook-App
+- name: List files in /opt/webhook_app/Python-Webhook-App
+  ansible.builtin.command:
+    cmd: ls -la /opt/webhook_app/Python-Webhook-App
+  register: result_python_app
+
+- name: Print result of ls command for Python-Webhook-App directory
+  ansible.builtin.debug:
+    var: result_python_app.stdout_lines
+
+
+# Create virtual environment in /opt/webhook_app/.venv
+- name: Create virtual environment
+  ansible.builtin.command:
+    cmd: python3 -m venv /opt/webhook_app/.venv
+  become: true
+
+# Debug: Check permissions of the requirements.txt file
+- name: Check permissions of requirements.txt
+  ansible.builtin.command:
+    cmd: ls -l /opt/webhook_app/Python-Webhook-App/requirements.txt
+  register: result_requirements_permissions
+
+- name: Print result of requirements.txt permissions check
+  ansible.builtin.debug:
+    var: result_requirements_permissions.stdout_lines
+
+# Debug: Ensure pip in virtual environment exists
+- name: Check if virtual environment's pip is available
+  ansible.builtin.command:
+    cmd: /opt/webhook_app/.venv/bin/pip --version
+  register: result_pip_check
+
+- name: Print result of pip check
+  ansible.builtin.debug:
+    var: result_pip_check.stdout_lines
+
+# Install Python requirements from the correct path
+- name: Install Python requirements from requirements.txt
+  ansible.builtin.pip:
+    requirements: /opt/webhook_app/Python-Webhook-App/requirements.txt
+    virtualenv: /opt/webhook_app/.venv
+    virtualenv_command: virtualenv
+  args:
+    chdir: /opt/webhook_app/Python-Webhook-App
+  become: true
+
+
+
+

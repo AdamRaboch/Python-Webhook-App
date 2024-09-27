@@ -1,0 +1,8 @@
+# defaults/main.yml
+flask_app_repo: 'https://github.com/AdamRaboch/flask_app.git'
+flask_app_dest: /opt/flask_app
+flask_app_port: 5000
+flask_app_version: main
+flask_venv_path: "{{ flask_app_dest }}/.venv"
+
+# defaults file for flask_role

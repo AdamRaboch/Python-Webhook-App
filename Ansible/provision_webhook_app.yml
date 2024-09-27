@@ -1,0 +1,6 @@
+- name: Provision Flask Application on flask-webhook-instance
+  hosts: webhook
+  become: yes
+
+  roles:
+    - webhook_role

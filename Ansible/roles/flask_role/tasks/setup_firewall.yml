@@ -1,0 +1,8 @@
+# tasks/setup_firewall.yml
+- name: Open port "{{ flask_app_port }}" in firewall
+  ansible.builtin.firewalld:
+    port: "{{ flask_app_port }}/tcp"
+    state: enabled
+    permanent: yes
+    immediate: yes
+  ignore_errors: yes

@@ -1,0 +1,9 @@
+# defaults/main.yml
+webhook_app_repo: 'https://github.com/AdamRaboch/Python-Webhook-App.git'
+webhook_app_dest: /opt/webhook_app
+webhook_app_port: 5000
+webhook_app_version: main
+webhook_venv_path: "{{ webhook_app_dest }}/.venv"
+
+# defaults file for webhook_role
+

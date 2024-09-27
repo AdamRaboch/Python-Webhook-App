@@ -1,0 +1,35 @@
+- name: Clone the Flask application repository
+  ansible.builtin.git:
+    repo: "{{ webhook_app_repo }}"
+    dest: "{{ webhook_app_dest }}"
+    version: "{{ webhook_app_version }}"
+    force: yes
+    update: yes
+
+- name: Stop any process running on port "{{ webhook_app_port }}"
+  ansible.builtin.shell: fuser -k {{ webhook_app_port }}/tcp || true
+  ignore_errors: yes
+
+- name: Create virtual environment
+  ansible.builtin.command:
+    cmd: python3 -m venv "{{ webhook_venv_path }}"
+    chdir: "{{ webhook_app_dest }}"
+  args:
+    creates: "{{ webhook_venv_path }}"
+
+# Update the path for requirements.txt
+- name: Install Flask and other dependencies
+  ansible.builtin.pip:
+    requirements: "{{ webhook_app_dest }}/Python-Webhook-App/requirements.txt"
+    virtualenv: "{{ webhook_venv_path }}"
+
+- name: Start the Flask application
+  ansible.builtin.shell: |
+    . {{ webhook_venv_path }}/bin/activate
+    nohup python3 {{ webhook_app_dest }}/Python-Webhook-App/app.py > {{ webhook_app_dest }}/app.log 2>&1 &
+  args:
+    chdir: "{{ webhook_app_dest }}/Python-Webhook-App"  # Change to correct path
+  register: start_app_result
+  ignore_errors: yes
+
+

@@ -1,0 +1,4 @@
+# tasks/main.yml
+- include_tasks: install_dependencies.yml
+- include_tasks: deploy_app.yml
+- include_tasks: setup_firewall.yml

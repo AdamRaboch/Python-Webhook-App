@@ -1,0 +1,38 @@
+---
+- name: Install Flask app dependencies
+  become: true  # Use this if you need sudo privileges
+  block:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install Python
+      ansible.builtin.apt:
+        name: python3
+        state: present
+
+    - name: Install pip
+      ansible.builtin.apt:
+        name: python3-pip
+        state: present
+
+  rescue:
+    - name: Handle failure in installation
+      ansible.builtin.debug:
+        msg: "Failed to install dependencies. Please check the logs."
+
+- name: Ensure Flask app directory exists
+  ansible.builtin.file:
+    path: /home/adam/flask_app
+    state: directory
+
+- name: Clone Flask app from GitHub
+  ansible.builtin.git:
+    repo: 'https://github.com/AdamRaboch/flask_app.git'
+    dest: /home/adam/flask_app  # Adjust this to where you want to clone the app
+
+- name: Start Flask app
+  ansible.builtin.shell:
+    cmd: nohup python3 /home/adam/flask_app/app.py &
+    async: 10
+    poll: 0

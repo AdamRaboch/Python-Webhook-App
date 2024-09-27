@@ -1,0 +1,6 @@
+---
+- name: Deploy Flask application
+  hosts: all  # Specify your target hosts here, e.g., 'centos' or 'web'
+  become: yes  # Use 'become' to run tasks with elevated privileges
+  roles:
+    - flask-app

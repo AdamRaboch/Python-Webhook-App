@@ -1,0 +1,14 @@
+[Unit]
+Description=Flask Webhook Application
+After=network.target
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/opt/flask_app
+Environment="PATH=/usr/bin:/usr/local/bin"
+ExecStart=/usr/bin/python3 /opt/flask_app/app.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

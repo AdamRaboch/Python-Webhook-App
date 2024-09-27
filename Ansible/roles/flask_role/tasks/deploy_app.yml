@@ -1,0 +1,38 @@
+# tasks/deploy_app.yml
+- name: Remove existing Flask application directory
+  ansible.builtin.file:
+    path: "{{ flask_app_dest }}"
+    state: absent
+  ignore_errors: yes
+
+- name: Clone Flask application repository from GitHub
+  ansible.builtin.git:
+    repo: "{{ flask_app_repo }}"
+    dest: "{{ flask_app_dest }}"
+    version: "{{ flask_app_version }}"
+    force: yes
+    update: yes
+
+- name: Stop any process running on port "{{ flask_app_port }}"
+  ansible.builtin.shell: fuser -k {{ flask_app_port }}/tcp || true
+  ignore_errors: yes
+
+- name: Create virtual environment
+  ansible.builtin.command:
+    cmd: python3 -m venv "{{ flask_venv_path }}"
+    chdir: "{{ flask_app_dest }}"
+  args:
+    creates: "{{ flask_venv_path }}"
+
+- name: Install Flask and other dependencies
+  ansible.builtin.pip:
+    requirements: "{{ flask_app_dest }}/requirements.txt"
+    virtualenv: "{{ flask_venv_path }}"
+
+- name: Start the Flask application
+  ansible.builtin.shell: |
+    . {{ flask_venv_path }}/bin/activate
+    nohup python3 {{ flask_app_dest }}/app.py > {{ flask_app_dest }}/app.log 2>&1 &
+  args:
+    chdir: "{{ flask_app_dest }}"
+  ignore_errors: yes
